@@ -1,13 +1,13 @@
 {
-  "name": "elm-language-client-vscode",
-  "description": "VSCode client for Elm",
+  "name": "canopy-language-client-vscode",
+  "description": "VSCode client for Canopy",
   "author": "Kolja Lampe",
-  "publisher": "elmTooling",
+  "publisher": "canopyLang",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elmtooling/elm-language-client-vscode"
+    "url": "https://github.com/CanopyLang/canopy-vscode"
   },
   "engines": {
     "vscode": "^1.52.0"
