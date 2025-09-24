@@ -1,6 +1,6 @@
 # Canopy Language Extension for Visual Studio Code (VSCode)
 
-![Canopy Logo](images/canopy.png)
+<img src="images/canopy.png" alt="Canopy Logo" width="100" height="100">
 
 The official Canopy language extension for Visual Studio Code, providing comprehensive language support for both `.can` (Canopy) and `.elm` (Elm) files.
 
