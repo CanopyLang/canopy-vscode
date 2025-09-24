@@ -3,7 +3,7 @@
   "displayName": "Canopy",
   "description": "Improving your Canopy experience since 2024",
   "publisher": "canopyLang",
-  "icon": "images/canopy.png",
+  "icon": "images/canopy-128.png",
   "author": "Kolja Lampe",
   "license": "MIT",
   "version": "0.0.1",
