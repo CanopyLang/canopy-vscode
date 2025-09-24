@@ -29,7 +29,6 @@ async function build() {
   };
 
   const browserOptions = {
-    inject: ["./server/src/browser/process-shim.ts"],
     plugins: [
       {
         name: "node-deps",
@@ -45,16 +44,6 @@ async function build() {
             const path = require.resolve("../node_modules/util", {
               paths: [__dirname],
             });
-            return { path: path };
-          });
-
-          build.onResolve({ filter: /^perf_hooks$/ }, (args) => {
-            const path = require.resolve(
-              "../server/src/browser/perf_hooks.ts",
-              {
-                paths: [__dirname],
-              },
-            );
             return { path: path };
           });
         },
@@ -80,27 +69,12 @@ async function build() {
     tsconfig: "./client/tsconfig.browser.json",
   };
 
-  const serverBrowserOptions = {
-    ...serverOptions,
-    ...browserOptions,
-    entryPoints: { browserServer: "./server/src/browser/index.ts" },
-    tsconfig: "./server/tsconfig.browser.json",
-  };
-
   const clientNodeOptions = {
     ...clientOptions,
     ...nodeOptions,
     entryPoints: { nodeClient: "./client/src/node/extension.ts" },
     platform: "node",
     tsconfig: "./client/tsconfig.node.json",
-  };
-
-  const serverNodeOptions = {
-    ...serverOptions,
-    ...nodeOptions,
-    entryPoints: { nodeServer: "./server/src/node/index.ts" },
-    platform: "node",
-    tsconfig: "./server/tsconfig.node.json",
   };
 
   if (watch) {
@@ -139,20 +113,12 @@ async function build() {
       .context(withProblemMatcher(clientBrowserOptions))
       .then((ctx) => ctx.watch());
     esbuild
-      .context(withProblemMatcher(serverBrowserOptions))
-      .then((ctx) => ctx.watch());
-    esbuild
       .context(withProblemMatcher(clientNodeOptions))
-      .then((ctx) => ctx.watch());
-    esbuild
-      .context(withProblemMatcher(serverNodeOptions))
       .then((ctx) => ctx.watch());
   } else {
     await Promise.all([
       esbuild.build(clientBrowserOptions),
-      esbuild.build(serverBrowserOptions),
       esbuild.build(clientNodeOptions),
-      esbuild.build(serverNodeOptions),
     ]);
   }
 }
