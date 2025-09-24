@@ -4,20 +4,20 @@ import * as request from "request-light";
 
 let packageTerminal: vscode.Terminal;
 
-interface IElmPackageQuickPickItem extends vscode.QuickPickItem {
+interface ICanopyPackageQuickPickItem extends vscode.QuickPickItem {
   info: string[];
 }
 
 function transformToPackageQuickPickItems(packages: {
   [K in string]: string[];
-}): IElmPackageQuickPickItem[] {
+}): ICanopyPackageQuickPickItem[] {
   return Object.keys(packages).map((item: string) => {
     return { label: item, description: item, info: packages[item] };
   });
 }
 
 function transformToPackageVersionQuickPickItems(
-  selectedPackage: IElmPackageQuickPickItem,
+  selectedPackage: ICanopyPackageQuickPickItem,
 ): vscode.QuickPickItem[] {
   return selectedPackage.info.map((version: string) => {
     return { label: version, description: undefined };
@@ -41,11 +41,11 @@ async function getJSON(): Promise<{ [K in string]: string[] }> {
 
 function getInstallPackageCommand(packageToInstall: string): string {
   const config: vscode.WorkspaceConfiguration =
-    vscode.workspace.getConfiguration("elmLS");
-  let t: string = config.get("elmPath") as string;
+    vscode.workspace.getConfiguration("canopyLS");
+  let t: string = config.get("canopyPath") as string;
 
   if (t === "") {
-    t = "elm";
+    t = "canopy";
   }
 
   return t + " install " + packageToInstall;
@@ -57,7 +57,7 @@ function installPackageInTerminal(packageToInstall: string) {
     if (packageTerminal !== undefined) {
       packageTerminal.dispose();
     }
-    packageTerminal = vscode.window.createTerminal("Elm Package Install");
+    packageTerminal = vscode.window.createTerminal("Canopy Package Install");
     const [installPackageLaunchCommand, clearCommand] =
       utils.getTerminalLaunchCommands(installPackageCommand);
     packageTerminal.sendText(clearCommand, true);
@@ -66,7 +66,7 @@ function installPackageInTerminal(packageToInstall: string) {
   } catch (error) {
     void vscode.window.showErrorMessage(
       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      "Cannot start Elm Package install. " + error,
+      "Cannot start Canopy Package install. " + error,
     );
   }
 }
@@ -134,7 +134,7 @@ function runInstall(): Thenable<void> {
 
 export function activatePackage(): vscode.Disposable[] {
   return [
-    vscode.commands.registerCommand("elm.install", runInstall),
-    vscode.commands.registerCommand("elm.browsePackage", browsePackage),
+    vscode.commands.registerCommand("canopy.install", runInstall),
+    vscode.commands.registerCommand("canopy.browsePackage", browsePackage),
   ];
 }
