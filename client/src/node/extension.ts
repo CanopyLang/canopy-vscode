@@ -35,7 +35,7 @@ import {
   ServerOptions,
   TransportKind,
 } from "vscode-languageclient/node";
-import * as Package from "./elmPackage";
+import * as Package from "./canopyPackage";
 import * as RefactorAction from "../common/refactorAction";
 import * as ExposeUnexposeAction from "../common/exposeUnexposeAction";
 import * as Restart from "../common/restart";
@@ -46,10 +46,10 @@ export interface IClientSettings {
   elmFormatPath: string;
   elmReviewPath: string;
   elmReviewDiagnostics: "off" | "warning" | "error";
-  elmPath: string;
+  canopyPath: string;
   elmTestPath: string;
   trace: { server: string };
-  disableElmLSDiagnostics: boolean;
+  disableCanopyLSDiagnostics: boolean;
   skipInstallPackageConfirmation: boolean;
   onlyUpdateDiagnosticsOnSave: boolean;
 }
@@ -68,13 +68,13 @@ export interface IRefactorCodeAction extends Omit<CodeAction, "isPreferred"> {
 const clients: Map<string, LanguageClient> = new Map<string, LanguageClient>();
 
 export async function activate(context: ExtensionContext): Promise<void> {
-  const module = context.asAbsolutePath(path.join("out", "nodeServer.js"));
+  const serverExecutable = "canopy-language-server";
 
-  const config = Workspace.getConfiguration().get<IClientSettings>("elmLS");
+  const config = Workspace.getConfiguration().get<IClientSettings>("canopyLS");
 
   // If we have nested workspace folders we only start a server on the outer most workspace folder.
   const workspaceFolders = await Workspace.findFiles(
-    "**/elm.json",
+    "**/{canopy.json,elm.json}",
     "**/{node_modules,elm-stuff}/**",
   );
   for (const workspaceFolderUri of workspaceFolders) {
@@ -90,8 +90,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
         "./server/node_modules/web-tree-sitter/tree-sitter.wasm",
       );
 
-      const elmJsonFiles = await Workspace.findFiles(
-        new RelativePattern(workspaceFolder, "**/elm.json"),
+      const configFiles = await Workspace.findFiles(
+        new RelativePattern(workspaceFolder, "**/{canopy.json,elm.json}"),
         "**/{node_modules,elm-stuff}/**",
       );
 
@@ -99,29 +99,22 @@ export async function activate(context: ExtensionContext): Promise<void> {
         execArgv: ["--nolazy", `--inspect=${6010 + clients.size}`],
       };
       const serverOptions: ServerOptions = {
-        debug: {
-          module,
-          options: debugOptions,
-          transport: TransportKind.ipc,
-        },
-        run: {
-          module,
-          transport: TransportKind.ipc,
-        },
+        command: serverExecutable,
+        args: ["--stdio"],
       };
       const clientOptions: LanguageClientOptions = {
-        diagnosticCollectionName: "Elm",
+        diagnosticCollectionName: "Canopy",
         documentSelector: [
           {
-            language: "elm",
+            language: "canopy",
           },
         ],
         synchronize: {
-          fileEvents: Workspace.createFileSystemWatcher("**/*.elm"),
+          fileEvents: Workspace.createFileSystemWatcher("**/*.{can,elm}"),
         },
         initializationOptions: {
           ...getSettings(config),
-          elmJsonFiles: elmJsonFiles.map((file) => file.toString()),
+          configFiles: configFiles.map((file) => file.toString()),
           treeSitterWasmUri:
             "importScripts" in globalThis
               ? treeSitterWasmUri.toString()
@@ -134,8 +127,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
         workspaceFolder,
       };
       const client = new LanguageClient(
-        "elmLS",
-        "Elm",
+        "canopyLS",
+        "Canopy",
         serverOptions,
         clientOptions,
       );
@@ -174,14 +167,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
   });
 
   Workspace.onDidChangeConfiguration(async (event) => {
-    if (event.affectsConfiguration("elmLS")) {
+    if (event.affectsConfiguration("canopyLS")) {
       const promises: Promise<void>[] = [];
 
       clients.forEach((client) => {
         promises.push(
           client.sendNotification(DidChangeConfigurationNotification.type, {
             settings: getSettings(
-              Workspace.getConfiguration().get<IClientSettings>("elmLS"),
+              Workspace.getConfiguration().get<IClientSettings>("canopyLS"),
             ),
           }),
         );
@@ -201,7 +194,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
           elmFormatPath: config.elmFormatPath,
           elmReviewPath: config.elmReviewPath,
           elmReviewDiagnostics: config.elmReviewDiagnostics,
-          elmPath: config.elmPath,
+          canopyPath: config.canopyPath,
           elmTestPath: config.elmTestPath,
           trace: {
             server: config.trace.server,
@@ -210,7 +203,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
             moveFunctionRefactoringSupport: true,
             exposeUnexposeSupport: true,
           },
-          disableElmLSDiagnostics: config.disableElmLSDiagnostics,
+          disableCanopyLSDiagnostics: config.disableCanopyLSDiagnostics,
         }
       : {};
   }
@@ -224,7 +217,7 @@ export function deactivate(): Thenable<void> | undefined {
   return Promise.all(promises).then(() => undefined);
 }
 
-const didApplyRefactoringCommandId = "elm.didApplyRefactoring";
+const didApplyRefactoringCommandId = "canopy.didApplyRefactoring";
 function registerDidApplyRefactoringCommand(context: ExtensionContext): void {
   context.subscriptions.push(
     commands.registerCommand(
