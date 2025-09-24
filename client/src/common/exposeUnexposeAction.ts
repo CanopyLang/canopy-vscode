@@ -13,7 +13,7 @@ export function registerCommands(
 ): void {
   context.subscriptions.push(
     commands.registerCommand(
-      `elm.expose-${workspaceId}`,
+      `canopy.expose-${workspaceId}`,
       async (params: IExposeUnexposeParams) => {
         await expose(languageClient, params);
       },
@@ -22,7 +22,7 @@ export function registerCommands(
 
   context.subscriptions.push(
     commands.registerCommand(
-      `elm.unexpose-${workspaceId}`,
+      `canopy.unexpose-${workspaceId}`,
       async (params: IExposeUnexposeParams) => {
         await unexpose(languageClient, params);
       },

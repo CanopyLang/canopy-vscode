@@ -9,7 +9,7 @@ export function registerCommands(
 ): void {
   context.subscriptions.push(
     commands.registerCommand(
-      `elm.refactor-${workspaceId}`,
+      `canopy.refactor-${workspaceId}`,
       async (
         command: string,
         params: CodeActionParams,

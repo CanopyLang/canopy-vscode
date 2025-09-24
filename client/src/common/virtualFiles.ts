@@ -22,13 +22,13 @@ export function register(
   });
   client.onRequest(ReadDirectoryRequest, async (uri) => {
     const result = await Workspace.findFiles(
-      new RelativePattern(client.protocol2CodeConverter.asUri(uri), "**/*.elm"),
+      new RelativePattern(client.protocol2CodeConverter.asUri(uri), "**/*.{can,elm}"),
     );
     return result.map((uri) => client.code2ProtocolConverter.asUri(uri));
   });
 
   context.subscriptions.push(
-    Workspace.registerTextDocumentContentProvider("elm-virtual-file", {
+    Workspace.registerTextDocumentContentProvider("canopy-virtual-file", {
       provideTextDocumentContent: async (
         uri: Uri,
         token: CancellationToken,
