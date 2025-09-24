@@ -70,7 +70,7 @@ class ElmTestAdapterRegister {
     if (testHub) {
       void vscode.workspace
         .findFiles(
-          new vscode.RelativePattern(workspaceFolder, "**/elm.json"),
+          new vscode.RelativePattern(workspaceFolder, "**/{canopy.json,elm.json}"),
           new vscode.RelativePattern(
             workspaceFolder,
             "**/{node_modules,elm-stuff}/**",

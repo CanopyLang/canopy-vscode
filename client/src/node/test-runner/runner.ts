@@ -236,9 +236,9 @@ export class ElmTestRunner implements vscode.Disposable {
   private getConfiguredElmBinaries(): IElmBinaries {
     const config = vscode.workspace
       .getConfiguration()
-      .get<IClientSettings>("elmLS");
+      .get<IClientSettings>("canopyLS");
     return <IElmBinaries>{
-      elm: nonEmpty(config?.elmPath),
+      elm: nonEmpty(config?.canopyPath),
       elmTest: nonEmpty(config?.elmTestPath),
     };
   }
@@ -321,7 +321,7 @@ function resolveElmBinaries(
         .filter((p) => p)[0],
     elm:
       configured.elm ??
-      rootPaths.map((r) => findLocalNpmBinary("elm", r)).filter((p) => p)[0],
+      rootPaths.map((r) => findLocalNpmBinary("canopy", r)).filter((p) => p)[0],
   };
 }
 
